@@ -1,16 +1,21 @@
 package org.web3j.sample;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.web3j.crypto.Bip39Wallet;
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.core.methods.response.Web3ClientVersion;
 import org.web3j.protocol.http.HttpService;
-import org.web3j.sample.contracts.generated.Greeter;
 import org.web3j.tx.Transfer;
 import org.web3j.tx.gas.ContractGasProvider;
 import org.web3j.tx.gas.DefaultGasProvider;
@@ -48,7 +53,53 @@ public class Application {
     private static final Logger log = LoggerFactory.getLogger(Application.class);
 
     public static void main(String[] args) throws Exception {
-        new Application().run();
+        new Application().runWeb3j();
+    }
+
+    private void runWeb3j() throws Exception {
+
+        //connect to ganache
+        Web3j web3 = Web3j.build(new HttpService("HTTP://127.0.0.1:7545"));  // defaults to http://localhost:8545/
+        Web3ClientVersion web3ClientVersion = web3.web3ClientVersion().send();
+        String clientVersion = web3ClientVersion.getWeb3ClientVersion();
+        log.info("Connected to Ethereum client version: " + clientVersion);
+
+
+        // ************ — — — — — — create account by seed phrase ******************
+//        System.out.println("Creating New Account");
+//        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+//        System.out.println("Enter New Password");
+//        String walletPassword = br.readLine();
+//        /* Define Wallet File Location */
+//        File walletDirectory = new File("/Users/siyuanhe/crypto/");
+//        Bip39Wallet walletName = WalletUtils.generateBip39Wallet(walletPassword, walletDirectory);
+//        System.out.println("wallet location: " + walletDirectory + "/" + walletName);
+//        Credentials credentials = WalletUtils.loadBip39Credentials(walletPassword, walletName.getMnemonic());
+//        String accountAddress = credentials.getAddress();
+//        System.out.println("Account address: " + credentials.getAddress());
+//        ECKeyPair privateKey = credentials.getEcKeyPair();
+//        String seedPhrase = walletName.getMnemonic();
+//        System.out.println("Account Details:");
+//        System.out.println("Your New Account : " + credentials.getAddress());
+//        System.out.println("Mneminic Code: " + walletName.getMnemonic());
+//        System.out.println("Private Key: " + privateKey.getPrivateKey().toString(16));
+//        System.out.println("Public Key:  "+ privateKey.getPublicKey().toString(16));
+
+//        String seedCode = "lrange genre joy gold diamond monitor film young cheese author march chapter";
+
+        Credentials credentials = Credentials.create("c8ccee1137c7fadd9dadabc4df8ae3b8bfbef48904e6b3a75c659cd76cb2ab35");
+        System.out.println(credentials.getAddress());
+
+
+        // Send Funds Sync
+        TransactionReceipt transferReceipt = Transfer.sendFunds(
+                web3, credentials,
+                "0xC382b58f6Ad94BEEe6D86621243755275cf88d5D",  // you can put any address here
+                BigDecimal.ONE, Convert.Unit.WEI)  // 1 wei = 10^-18 Ether
+                .send();
+        log.info("Transaction complete, " + transferReceipt.getTransactionHash());
+
+
     }
 
     private void run() throws Exception {
@@ -66,6 +117,7 @@ public class Application {
                 WalletUtils.loadCredentials(
                         "<password>",
                         "/path/to/<walletfile>");
+
         log.info("Credentials loaded");
 
         // FIXME: Request some Ether for the Rinkeby test network at https://www.rinkeby.io/#faucet
@@ -82,33 +134,6 @@ public class Application {
         // Now lets deploy a smart contract
         log.info("Deploying smart contract");
         ContractGasProvider contractGasProvider = new DefaultGasProvider();
-        Greeter contract = Greeter.deploy(
-                web3j,
-                credentials,
-                contractGasProvider,
-                "test"
-                ).send();
 
-        String contractAddress = contract.getContractAddress();
-        log.info("Smart contract deployed to address " + contractAddress);
-        log.info("View contract at https://rinkeby.etherscan.io/address/" + contractAddress);
-
-        log.info("Value stored in remote smart contract: " + contract.greet().send());
-
-        // Lets modify the value in our smart contract
-        TransactionReceipt transactionReceipt = contract.newGreeting("Well hello again").send();
-
-        log.info("New value stored in remote smart contract: " + contract.greet().send());
-
-        // Events enable us to log specific events happening during the execution of our smart
-        // contract to the blockchain. Index events cannot be logged in their entirety.
-        // For Strings and arrays, the hash of values is provided, not the original value.
-        // For further information, refer to https://docs.web3j.io/filters.html#filters-and-events
-        for (Greeter.ModifiedEventResponse event : contract.getModifiedEvents(transactionReceipt)) {
-            log.info("Modify event fired, previous value: " + event.oldGreeting
-                    + ", new value: " + event.newGreeting);
-            log.info("Indexed event previous value: " + Numeric.toHexString(event.oldGreetingIdx)
-                    + ", new value: " + Numeric.toHexString(event.newGreetingIdx));
-        }
     }
 }

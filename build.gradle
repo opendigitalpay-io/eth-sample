@@ -1,8 +1,10 @@
 plugins {
     id 'java'
-    id 'org.web3j' version '4.5.0'
+    id 'org.web3j' version '4.8.7'
+    id 'application'
 }
 
+apply plugin : "java"
 group 'org.web3j'
 version '0.2.0'
 
@@ -18,9 +20,11 @@ web3j {
 }
 
 ext {
-    web3jVersion = '4.5.0'
-    logbackVersion = '1.2.3'
+    web3jVersion = '4.8.7'
+    logbackVersion = '1.2.10'
     junitVersion = '4.12'
+    javaMainClass = "org.web3j.sample.Application"
+
 }
 
 dependencies {
@@ -28,4 +32,8 @@ dependencies {
             "ch.qos.logback:logback-core:$logbackVersion",
             "ch.qos.logback:logback-classic:$logbackVersion"
     testImplementation "junit:junit:$junitVersion"
+}
+
+application {
+    mainClassName = javaMainClass
 }
