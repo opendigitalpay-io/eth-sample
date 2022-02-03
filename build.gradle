@@ -41,6 +41,7 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
 }
 
+
 application {
     mainClassName = javaMainClass
 }
