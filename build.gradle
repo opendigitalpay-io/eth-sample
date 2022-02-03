@@ -8,6 +8,12 @@ apply plugin : "java"
 group 'org.web3j'
 version '0.2.0'
 
+node {
+    version.set("17.4.0")
+    npmVersion.set("6.13.7")
+    download.set(true)
+}
+
 sourceCompatibility = 1.8
 
 repositories {
@@ -26,6 +32,7 @@ ext {
     javaMainClass = "org.web3j.sample.Application"
 
 }
+
 
 dependencies {
     implementation "org.web3j:core:$web3jVersion",

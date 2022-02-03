@@ -58,8 +58,17 @@ public class Application {
 
     private void runWeb3j() throws Exception {
 
+        /*String webServer = "http://192.168.1.157:8545";
+        String sourceCredentials = "329bbdc57b698dbc96fe8f60a12007841dd1a90524f3c3b16d01b09f25a4f13f";
+        String targetAddress = "0xBC35b0939e521D26900f79A5aa8b624fbfD492c7";*/
+
+        String webServer = "https://ropsten.infura.io/v3/a2e27f7731e845198230881c0f010ef3";
+        String sourceCredentials = "a982bcad304626c16b1fdadaa9c8b09d74a0cf48c96015f839835674bb51f416";
+        String targetAddress = "0xAED01C776d98303eE080D25A21f0a42D94a86D9c";
+
+
         //connect to ganache
-        Web3j web3 = Web3j.build(new HttpService("HTTP://127.0.0.1:7545"));  // defaults to http://localhost:8545/
+        Web3j web3 = Web3j.build(new HttpService(webServer));  // defaults to http://localhost:8545/
         Web3ClientVersion web3ClientVersion = web3.web3ClientVersion().send();
         String clientVersion = web3ClientVersion.getWeb3ClientVersion();
         log.info("Connected to Ethereum client version: " + clientVersion);
@@ -87,15 +96,14 @@ public class Application {
 
 //        String seedCode = "lrange genre joy gold diamond monitor film young cheese author march chapter";
 
-        Credentials credentials = Credentials.create("c8ccee1137c7fadd9dadabc4df8ae3b8bfbef48904e6b3a75c659cd76cb2ab35");
+        Credentials credentials = Credentials.create(sourceCredentials);
         System.out.println(credentials.getAddress());
-
-
+        
         // Send Funds Sync
         TransactionReceipt transferReceipt = Transfer.sendFunds(
                 web3, credentials,
-                "0xC382b58f6Ad94BEEe6D86621243755275cf88d5D",  // you can put any address here
-                BigDecimal.ONE, Convert.Unit.WEI)  // 1 wei = 10^-18 Ether
+                targetAddress,  // you can put any address here
+                BigDecimal.ONE, Convert.Unit.WEI) //Convert.Unit.ETHER)  // 1 wei = 10^-18 Ether
                 .send();
         log.info("Transaction complete, " + transferReceipt.getTransactionHash());
 
